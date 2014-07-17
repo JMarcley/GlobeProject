@@ -1,0 +1,8 @@
+<div ng-repeat="metric in status.metrics">
+	<h4>{{metric.name}}</h4>
+	<div class="progress">
+	  <div class="progress-bar" role="progressbar" aria-valuenow= {{metric.value}} aria-valuemin="0" aria-valuemax="100" style="width: {{metric.value}}%; background-color: {{metric.color}};">
+	    <span class="sr-only">{{metric.value}}% Complete</span>
+	  </div>
+	</div>
+</div>
