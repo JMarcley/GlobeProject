@@ -1,174 +1,99 @@
-// app.js
-var routerApp = angular.module('routerApp', ['ui.router']);
+"use strict";
+(function() {
+var globeProject = angular.module('globeProject', ['ui.router'])
+		.config(function($stateProvider, $urlRouterProvider) {
 
-routerApp.config(function($stateProvider, $urlRouterProvider) {
-    
-    $urlRouterProvider.otherwise('/home');
-    
-    $stateProvider
-        
-        // HOME STATES AND NESTED VIEWS ========================================
-        .state('home', {
-            url: '/home',
-            templateUrl: 'partial-about.html'
-        })
+			$urlRouterProvider.otherwise('/GlobeProject');
 
-        // nested list with custom controller
-        .state('home.list', {
-           /* url: '/list',*/
-            templateUrl: 'partial-home-list.html',
-            controller: function($scope) {
-                $scope.dogs = ['Bernese', 'Husky', 'Goldendoodle'];
-            }
-        })
+			$stateProvider
+				.state('globeProject', {
+					url: '/GlobeProject',
+					templateUrl: 'main.html'
+				})
+				.state('home', {
+		            url: '/GlobeProject',
+		            templateUrl: 'main.html'
+		        })
+                .state('about', {
+		            url: '/GlobeProject',
+		            templateUrl: 'main.html'
+		        });
 
-        // nested list with just some random string data
-        .state('home.paragraph', {
-            url: '/paragraph',
-            template: 'I could sure use a drink right now.'
-        })
-        
-        // ABOUT PAGE AND MULTIPLE NAMED VIEWS =================================
-        .state('about', {
-            url: '/about',
-            views: {
+		})
 
-                // the main template will be placed here (relatively named)
-                '': { templateUrl: 'partial-about.html' },
+/*	angular.module('canvasCtrl', [])*/
+		.directive("gameMap", function() {
+		    return {
 
-                // the child views will be defined here (absolutely named)
-                'columnOne@about': { 
-                    templateUrl: 'partial-status.html' 
-                },
+		        restrict: "A",
+		        link: function(scope, element) {
+		            var ctx = element[0].getContext('2d');
 
-                // for column two, we'll define a separate controller 
-                'columnTwo@about': { 
-                    templateUrl: 'partial-options-nav.html',
-                    controller: 'optionController',
-                    controllerAs: 'options'
-                },
+		            var bg = new Image();
+		            bg.src = "images/world_map.jpg";
 
-                //option descriptions
-                'descriptions@about': {
-                    templateUrl: 'partial-options-descriptions.html',
-                    controller: 'descritpionController',
-                    controllerAs: 'descriptions'
-                }
-            }
-            
-        });
-            
-});
+		            ctx.drawImage(bg,0,0);
 
-// let's define the option controller that we call up in the about state
-/*routerApp.controller('optionController', function($scope) {
-    this.options = climateSolutions;
-});
+		            var losAngeles = smog(250,200,50);
 
-routerApp.controller('descriptionController', function($scope) {
-    this.choices = climateSolutions.choices;
-});*/
+		            function smog(x,y,severity) {
+		                var grd = ctx.createRadialGradient(x,y,severity*0.1,x,y,severity);
+		                var opacity = .75;
+		                grd.addColorStop(0,"brown");
+		                grd.addColorStop(1,"transparent");
 
-routerApp.controller('MyCtrl', ['$scope', function ($scope) {
-  // ...
-}]);
+		                console.log('this ran');
 
-/*service("startGame", function() {
-    this.initialize = function() {
-            console.log("this is available in timeService");
-    }
-});*/
+		                ctx.fillStyle = grd;
+		                ctx.fillRect(x-severity,y-severity,2*severity,2*severity);
+		            }
 
-/*routerApp.service("startTest", [ 'startGame', function(startGame) {
-    startGame.initialize();
-}]);*/
+		        }
+		    };
+		})
 
-/*routerApp.factory("timeService", [ '$scope', '$interval', 'startGame', function($scope, $interval, startGame) { //probably shouldnt be a controller
-    $scope.frameTime = $interval( function () {
+/*	angular.module('userActions', [])*/
+		.directive("statusBox", function() {
+		    return {
+		        restrict: "E",
+		        templateUrl: "game-status.html",
 
-            startGame.initialize();
+		        controller: function() {
+		            this.metrics = metrics;
+		        },
+		        controllerAs: "status"
+		    };
+		})
+		.directive("solutionChoices", function() {
+		    return {
+		      restrict: "E",
+		      templateUrl: "user-choices-nav.html",
 
-    }, 30);
+		      controller: function() {
 
-    gametime.currentTime = function() {
+		/*        var doesThisWork = initializeGame.getArtist();
+		        console.log(doesThisWork);*/
 
-    };
-    return gametime;
-}]);
-*/
-// make a canvas manager
-/*routerApp.factory("MapManager", [ "$interval", function($interval) {
+		        this.options = climateSolutions;
 
-}]);*/
+		        this.tab = [1,0];
 
-routerApp.directive("solutionChoices", function() {
+		        this.isSet = function(checkTab, index) {
+		          return this.tab[index] === checkTab;
+		        };
 
-    return {
-      restrict: "E",
-      templateUrl: "partial-options-nav.html",
+		        this.setTab = function(activeTab, index) {
+		          this.tab[index] = activeTab;
+		          if (index === 0) {
+		            this.tab[1] = 0;
+		          }
+		        };
+		      },
 
-      controller: function() {
-        this.options = climateSolutions;
+		      controllerAs: "options"
 
-        this.tab = [1,0];
-
-        this.isSet = function(checkTab, index) {
-          return this.tab[index] === checkTab;
-        };
-
-        this.setTab = function(activeTab, index) {
-          this.tab[index] = activeTab;
-          if (index === 0) {
-            this.tab[1] = 0;
-          }
-        };
-      },
-
-      controllerAs: "options"
-
-    };
-});
-
-routerApp.directive("statusBox", function() {
-
-    return {
-        restrict: "E",
-        templateUrl: "partial-status.html",
-
-        controller: function() {
-            this.metrics = metrics;
-        },
-        controllerAs: "status"
-    };
-});
-
-routerApp.directive("gameMap", [/* "timeService"*/, function(/*timeService*/) {
-    return {
-
-        restrict: "A",
-        link: function(scope, element) {
-            var ctx = element[0].getContext('2d');
-
-            var bg = new Image();
-            bg.src = "images/world_map.jpg";
-
-            ctx.drawImage(bg,0,0);
-
-            var losAngeles = smog(250,200,50);
-
-            function smog(x,y,severity) {
-                var grd = ctx.createRadialGradient(x,y,severity*0.1,x,y,severity);
-                var opacity = .75;
-                grd.addColorStop(0,"brown");
-                grd.addColorStop(1,"transparent");
-
-                ctx.fillStyle = grd;
-                ctx.fillRect(x-severity,y-severity,2*severity,2*severity);
-            }
-
-        }
-    };
-}]);
+		    };
+		});
 
 var climateSolutions = [{
     type: 'Policy',
@@ -221,3 +146,60 @@ var metrics = [{
     value: 75,
     color: "red"
   }]
+
+
+
+
+})();
+
+// let's define the option controller that we call up in the about state
+/*routerApp.controller('optionController', function($scope) {
+    this.options = climateSolutions;
+});
+
+routerApp.controller('descriptionController', function($scope) {
+    this.choices = climateSolutions.choices;
+});*/
+
+/*routerApp.factory('initializeGame', function ($interval) {
+  if (currentTime === undefined) {
+    var currentTime = 0;
+  }
+  var frame = $interval(function() {
+    currentTime = currentTime + 1;
+  }, 30);
+
+  service.getArtist = function(){
+    return currentTime;
+  }
+
+  return service;
+});*/
+
+/*service("startGame", function() {
+    this.initialize = function() {
+            console.log("this is available in timeService");
+    }
+});*/
+
+/*routerApp.service("startTest", [ 'startGame', function(startGame) {
+    startGame.initialize();
+}]);*/
+
+/*routerApp.factory("timeService", [ '$scope', '$interval', 'startGame', function($scope, $interval, startGame) { //probably shouldnt be a controller
+    $scope.frameTime = $interval( function () {
+
+            startGame.initialize();
+
+    }, 30);
+
+    gametime.currentTime = function() {
+
+    };
+    return gametime;
+}]);
+*/
+// make a canvas manager
+/*routerApp.factory("MapManager", [ "$interval", function($interval) {
+
+}]);*/
